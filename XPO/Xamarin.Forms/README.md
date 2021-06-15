@@ -4,14 +4,12 @@ From this tutorial, you will learn how to perform CRUD (create-read-update-delet
 
 > You can find the complete project code in the sub-directories.
 
-
 ### Prerequisites
 - [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) with the **Mobile development with .NET** workload.
 - (Optional) A paired Mac to build the application on iOS.
 
 > **NOTE:** If you have a pre-release version of our components, for example, provided with the hotfix, you also have a pre-release version of NuGet packages. These packages will not be restored automatically and you need to update them manually as described in the [Updating Packages](https://docs.devexpress.com/GeneralInformation/118420/Installation/Install-DevExpress-Controls-Using-NuGet-Packages/Updating-Packages) article using the [Include prerelease](https://docs.microsoft.com/en-us/nuget/create-packages/prerelease-packages#installing-and-updating-pre-release-packages) option.
 
-***
 
 ## Step 1. Create a Mobile App
 
@@ -23,7 +21,6 @@ From this tutorial, you will learn how to perform CRUD (create-read-update-delet
 > **Getting started with XamarinForms**
 > - [Build your first Xamarin.Forms App](https://docs.microsoft.com/en-us/xamarin/get-started/first-app/)
 > - [Xamarin.Forms - Quick Starts](https://docs.microsoft.com/en-us/xamarin/get-started/quickstarts/)
-
 
 
 ## Step 2. Add the NuGet Packages
@@ -55,10 +52,10 @@ Install-Package DevExpress.Persistent.BaseImpl
 ## Step 3. Add XPO Model
 
 ### Scenario #1
-To reuse existing data models and Security System settings (users, roles and permissions) stored in an XAF application database, add a reference to the [YourXafProject].Module.NetCore project. We use the following project in this tutorial: [XafSolution.Module.NetCore](https://github.com/DevExpress-Examples/XAF_Security_E4908/blob/master/XPO/XafSolution/XafSolution.Module/XafSolution.Module.NetCore.csproj). See also: [Port an Existing XAF Application to .NET Core 3.0+](https://docs.devexpress.com/eXpressAppFramework/401264/net-core-3-0-support-in-winforms-application/port-an-application-to-net-core?p=netcore).
+To reuse existing data models and Security System settings (users, roles and permissions) stored in an XAF application database, add a reference to the **[YourXafProject].Module.NetCore project**. We use the following project in this tutorial: [XafSolution.Module.NetCore](https://github.com/DevExpress-Examples/XAF_Security_E4908/blob/master/XPO/XafSolution/XafSolution.Module/XafSolution.Module.NetCore.csproj). See also: [Port an Existing XAF Application to .NET 5](https://docs.devexpress.com/eXpressAppFramework/401264/net-5-support-and-migration/port-an-application-to-net-5).
 
 ### Scenario #2
-To create a new data model, use [XPO Data Model Wizard](https://docs.devexpress.com/XPO/14810/design-time-features/data-model-wizard). In this scenario, you can re-use built-in classes (PermissionPolicyUser, PermissionPolicyRole) or create custom security objects. Refer to the following help topics for additional information:
+To create a new data model, use [XPO Data Model Wizard](https://docs.devexpress.com/XPO/14810/design-time-features/data-model-wizard). In this scenario, you can re-use built-in classes (`PermissionPolicyUser`, `PermissionPolicyRole`) or create custom security objects. Refer to the following help topics for additional information:
   - [How to: Implement a Custom Security System User Based on an Existing Business Class](https://docs.devexpress.com/eXpressAppFramework/113452/task-based-help/security/how-to-implement-a-custom-security-system-user-based-on-an-existing-business-class).
   - [How to: Implement Custom Security Objects (Users, Roles, Operation Permissions)](https://docs.devexpress.com/eXpressAppFramework/113384/task-based-help/security/how-to-implement-custom-security-objects-users-roles-operation-permissions).
 
@@ -75,16 +72,15 @@ The static `XpoHelper` class exposes the following members:
 
 #### Add the XpoHelper class
 
-1. Remove the following line in the App.xaml.cs file:
+1. Remove the following line in the _App.xaml.cs_ file:
     ```csharp
     // Remove this line:
     DependencyService.Register<MockDataStore>();
     ```
-2. Replace the IDataStore.cs and MockDataStore.cs files in the Services folder with the XpoHelper.cs file in a class library project.
+2. Replace the _IDataStore.cs_ and _MockDataStore.cs_ files in the _Services_ folder with the _XpoHelper.cs_ file in a class library project.
     ```csharp
     using DevExpress.ExpressApp.Security;
     using DevExpress.Xpo;
-
     namespace XamarinFormsDemo.Services {
         public static class XpoHelper {
             static readonly SecurityStrategyComplex fSecurity;
@@ -174,6 +170,7 @@ The static `XpoHelper` class exposes the following members:
         handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
         return handler;
     }
+	```
 5. Add the `GetObjectSpaceProvider`, `Logon`, and `Logoff` methods. Refer to the following article for information on how to specify a proper connection string: [Transfer Data via REST API](https://docs.devexpress.com/XPO/402182/connect-to-a-data-store/transfer-data-via-rest-api#connect-a-xamarin-app)
     ```csharp
     using DevExpress.ExpressApp.Security.ClientServer;
@@ -203,21 +200,18 @@ The static `XpoHelper` class exposes the following members:
         return (UnitOfWork)space.Session;
     }
     ```
-    
+
 ## Step 5. Base ViewModel and XPO view model implementation
 
-Change the ViewModels\BaseViewModel.cs file as follows.
+Change the _ViewModels\BaseViewModel.cs_ file as follows.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-
 using DevExpress.Xpo;
-
 using XamarinFormsDemo.Services;
-
 namespace XamarinFormsDemo.ViewModels {
     public class BaseViewModel : INotifyPropertyChanged {
         
@@ -226,32 +220,27 @@ namespace XamarinFormsDemo.ViewModels {
             get { return isBusy; }
             set { SetProperty(ref isBusy, value); }
         }
-
         string title = string.Empty;
         public string Title {
             get { return title; }
             set { SetProperty(ref title, value); }
         }
-
         protected bool SetProperty<T>(ref T backingStore, T value,
             [CallerMemberName] string propertyName = "",
             Action onChanged = null) {
             if(EqualityComparer<T>.Default.Equals(backingStore, value))
                 return false;
-
             backingStore = value;
             onChanged?.Invoke();
             OnPropertyChanged(propertyName);
             return true;
         }
-
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "") {
             var changed = PropertyChanged;
             if(changed == null)
                 return;
-
             changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
@@ -259,14 +248,13 @@ namespace XamarinFormsDemo.ViewModels {
 }
 ```  
 
-add new class to the `ViewModels` folder, name it `XpoViewModel` and change it accordingly:
+Add a new class to the _ViewModels_ folder, name it `XpoViewModel` and change it follows:
 
 ```csharp
 using DevExpress.Xpo;
 using Xamarin.Forms;
 using XamarinFormsDemo.Services;
 using XamarinFormsDemo.Views;
-
 namespace XamarinFormsDemo.ViewModels {
     public class XpoViewModel : BaseViewModel {
         UnitOfWork unitOfWork;
@@ -291,7 +279,7 @@ Make every other ViewModel, except `LogIn`, inherit `XpoViewModel` instead of `B
 
 ## Step 6. Login Page and ViewModel implementation
 
-1. In the ViewModels/LoginViewModel.cs file, add the `UserName` and `Password` properties, and change the `OnLoginClicked` method.
+1. In the _ViewModels\LoginViewModel.cs_ file, add the `UserName` and `Password` properties, and change the `OnLoginClicked` method.
 
     ```csharp
     string userName;
@@ -299,13 +287,11 @@ Make every other ViewModel, except `LogIn`, inherit `XpoViewModel` instead of `B
         get { return userName; }
         set { SetProperty(ref userName, value); }
     }
-
     string password;
     public string Password {
         get { return password; }
         set { SetProperty(ref password, value); }
     }
-
     private async void OnLoginClicked(object obj) {
         try {
             XpoHelper.Logon(UserName, Password);
@@ -315,8 +301,8 @@ Make every other ViewModel, except `LogIn`, inherit `XpoViewModel` instead of `B
         }
     }
     ```
-    
-2. In the Views/LoginPage.xaml file, add the `UserName` and `Password` fields.
+
+2. In the _Views\LoginPage.xaml_ file, add the `UserName` and `Password` fields.
 
     ```xaml
     <ContentPage.Content>
@@ -340,9 +326,9 @@ Make every other ViewModel, except `LogIn`, inherit `XpoViewModel` instead of `B
         </Grid>
     </ContentPage.Content>
     ```  
-3. In the `App.xaml.cs` change shell creation accordingly:
+3. In the _App.xaml.cs_ file, change shell creation accordingly:
 
-    - add `ResetMainPage` method
+    - add the `ResetMainPage` method:
         ```csharp
         public static Task ResetMainPage() {
             Current.MainPage = new AppShell();
@@ -350,7 +336,7 @@ Make every other ViewModel, except `LogIn`, inherit `XpoViewModel` instead of `B
         }
         ``` 
     - Call `ResetMainPage()` in the `App` class constructor instead of `MainPage = new AppShell();`
-    - In the `AppShell.xaml` file add routing parameter to the `Browse` shell content
+    - In the _AppShell.xaml_ file add routing parameter to the `Browse` shell content:
 
         ```xaml
         <ShellContent Title="Browse" Icon="icon_feed.png" Route="ItemsPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
@@ -362,6 +348,7 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
 
 1. Create the properties and commands in the `ItemsViewModel` class. 
     ```csharp
+    //ItemsViewModel.cs
     public ItemsViewModel() {
           Title = "Browse";
           Items = new ObservableCollection<Employee>();
@@ -381,7 +368,6 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
     void ExecuteLoadEmployeesCommand() {
         if(IsBusy)
             return;
-
         IsBusy = true;
         LoadEmployees();
         IsBusy = false;
@@ -408,10 +394,10 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
                 return;
             var tempGuid = SelectedItem.Oid;
             SelectedItem = null;
-            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?itemGuid={tempGuid.Tostring()}");
+            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?itemGuid={tempGuid.ToString()}");
         }
     ```
-    In the `ItemsPage.xaml` file, add the ListView component with a custom DataTemplate instead of refreshing collection. 
+    In the _ItemsPage.xaml_ file, add the ListView component with a custom DataTemplate instead of template-generated refreshing collection or RefreshView. 
 
     ```xaml
     <ListView x:Name="ItemsListView" 
@@ -443,11 +429,12 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
         </ListView.ItemTemplate>
     </ListView>
     ```
-- Add the _Add Item_ and _Log Out_ buttons.
-    
+- Add the **Add Item** and **Log Out** buttons.
+
     Note: In the command's `canExecute` function, you can use the [IsGrantedExtensions Methods](https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.Security.IsGrantedExtensions._methods) to disable a command if the current user is not authorized to do the corresponding opeation.
 
     ```csharp
+    //ItemsViewModel.cs
     public ItemsViewModel() {
         //...
         AddItemCommand = new Command(async () => {
@@ -466,7 +453,7 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
     }
     
     ```
-    In the ItemsPage.xaml file, add the following ToolBar items.
+    In the _ItemsPage.xaml_ file, add the following ToolBar items.
 
     ```xaml
     <ContentPage.ToolbarItems>
@@ -479,6 +466,7 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
     A user may want to see a list of employees from a specific depertment. To implement this, put a Picker control and bind it to the `Department` and `SelectedDepartments` ViewModel properties.
 
     ```csharp
+    //ItemsViewModel.cs
     ObservableCollection<Department> departments;
     public ObservableCollection<Department> Departments {
         get { return departments; }
@@ -490,7 +478,6 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
         get { return selectedDepartment; }
         set { SetProperty(ref selectedDepartment, value); FilterByDepartment(); }
     }
-
     void FilterByDepartment() {
         if(SelectedDepartment != null) {
             LoadEmployees();
@@ -500,7 +487,6 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
             LoadEmployees();
         }
     }
-
     public ItemsViewModel() {
         //..
         Departments = new ObservableCollection<Department>();
@@ -512,7 +498,6 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
         });
         //..
     }
-
     public void LoadDepartments() {
         try {
             var items = UnitOfWork.Query<Department>().ToList();
@@ -521,16 +506,15 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
             Debug.WriteLine(ex);
         }
     }
-
     void ExecuteLoadDepartmentsCommand() {
         if(IsBusy)
             return;
-
         IsBusy = true;
         LoadDepartments();
         IsBusy = false;
     }
     ```
+
     ```xaml
     <StackLayout>
         <Picker Title="Filter" ItemsSource="{Binding Departments}" SelectedItem="{Binding SelectedDepartment}"/>
@@ -543,30 +527,34 @@ Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files 
 
 Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xaml_ files as shown below.
 
-- In the `ItemDetailViewModel` class add 
+- In the `ItemDetailViewModel` class add the following code:
 
     ```csharp
+    //ItemDetailViewModel.cs
     [QueryProperty(nameof(ItemGuid), "itemGuid")]
     public class ItemDetailViewModel : XpoViewModel {
+        string _itemGuid;
+        public string ItemGuid {
+            get { return _itemGuid; }
+            set {
+                SetProperty(ref _itemGuid, value);
+                Load();
+            }
+        }
+        
         Employee item;
         public Employee Item {
             get { return item; }
             set { SetProperty(ref item, value); }
         }
-
         bool isNewItem;
         public bool IsNewItem {
             get { return isNewItem; }
             set { SetProperty(ref isNewItem, value); }
         }
-        Guid? oid;
-        public Guid? Oid {
-            get { return Oid; }
-            set { SetProperty(ref Oid, value); Load();}
-        }
-        public Load() {
+        async void Load() {
             //..
-            IsNewItem = (Oid == null);
+            IsNewItem = String.IsNullOrEmpty(ItemGuid);
             if(isNewItem) {
                 Item = new Employee(UnitOfWork) { FirstName = "First name", LastName = "Last Name" };
                 Title = "New employee";
@@ -578,8 +566,10 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
         }
     }
     ```
-    In the `ItemDetailPage.xaml` add a `Grid` with following parameters
-    ```
+
+    In the _ItemDetailPage.xaml_ file, add a `Grid` with following parameters:
+
+    ```xaml
     <Grid ColumnSpacing="20" Padding="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -604,20 +594,25 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
 - `Picker`
 
     If a user is allowed to modify the `Department` property, a `Picker` with selectable options is shown. In the `ItemDetailVeiwModel` class add following code:
-    
+
     ```csharp
+    //ItemDetailViewModel.cs
     List<Department> departments;
     public List<Department> Departments {
         get { return departments; }
         set { SetProperty(ref departments, value); }
     }
-    
+    bool canWriteDepartment;
+    public bool CanWriteDepartment {
+            get { return canWriteDepartment; }
+            set { SetProperty(ref canWriteDepartment, value); }
+    }
     bool canReadDepartment;
     public bool CanReadDepartment {
         get { return canReadDepartment; }
         set { SetProperty(ref canReadDepartment, value); }
     }
-    public Load() {
+    async void Load() {
         Departments = UnitOfWork.Query<Department>().ToList(); //Has to be the first line;
         //..
         CanReadDepartment = XpoHelper.Security.CanRead(Item, "Department");
@@ -630,10 +625,11 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
 
 - Buttons
 
-    `Save` and `Delete` buttons availability depends on security. We will bind them to commands, so we can control whether a button is active.
+    **Save** and **Delete** buttons availability depends on security. We will bind them to commands, so we can control whether a button is active.
 
     In the `ItemDetailViewModel` class, add commands and security properties:
     ```csharp
+    //ItemDetailViewModel.cs
     bool readOnly;
     public bool ReadOnly {
             get { return readOnly; }
@@ -646,7 +642,6 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
         }
     public Command CommandDelete { get; private set; }
     public Command CommandUpdate { get; private set; }
-
     public ItemDetailViewModel() {
         CommandDelete = new Command(async () => {
             await DeleteItemAndGoBack();
@@ -657,7 +652,7 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
         },
     () => !ReadOnly);
     }
-    public Load(){
+    async void Load(){
         //..
         CanDelete = XpoHelper.Security.CanDelete(Item);
         ReadOnly = !XpoHelper.Security.CanWrite(Item);
@@ -674,14 +669,18 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
         await Shell.Current.Navigation.PopAsync();
     }
     ```
-    In the `ItemDetailPage.xaml`, add Toolbar items with the following parameters:
+
+    In the _ItemDetailPage.xaml_ file, add Toolbar items with the following parameters:
+
     ```xaml
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Delete" Command="{Binding CommandDelete}" />
         <ToolbarItem Text="Save" Command="{Binding CommandUpdate}"  />
     </ContentPage.ToolbarItems>
     ```
-    Finally add a constructor to the `ItemsDetailPage.xaml.cs` class to bind ViewModel and Page together.
+
+    Add a constructor to the `ItemsDetailPage` class (_ItemsDetailPage.xaml.cs_) to bind ViewModel and Page together.
+
     ```csharp
     public ItemDetailPage() {
         InitializeComponent();
@@ -689,7 +688,7 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
     }
     ```
 
-## Step 8. Populate the Data Base
+## Step 8. Populate the Database
 
 To seed the data in the database, add the `UpdateDataBase` method and call this method from the `XpoHelper` static constructor: 
 
@@ -710,4 +709,4 @@ static void UpdateDataBase() {
 
  - Log in as 'User' with an empty password.
  - Notice that secured data is not displayed.
- - Press the Logout button and log in as 'Admin' to see all records.
+ - Press the **Logout** button and log in as 'Admin' to see all records.
