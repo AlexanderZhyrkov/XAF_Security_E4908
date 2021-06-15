@@ -49,7 +49,7 @@ Install-Package DevExpress.ExpressApp.Security.Xpo
 Install-Package DevExpress.ExpressApp.Validation
 ```
 ```console
-Install-Package Persistent.BaseImpl
+Install-Package DevExpress.Persistent.BaseImpl
 ```
 
 ## Step 3. Add XPO Model
@@ -80,7 +80,7 @@ The static `XpoHelper` class exposes the following members:
     // Remove this line:
     DependencyService.Register<MockDataStore>();
     ```
-2. Replace the IDataStore.cs and MockDataStore.cs files in the Services folder with the XpoHelper.cs file.
+2. Replace the IDataStore.cs and MockDataStore.cs files in the Services folder with the XpoHelper.cs file in a class library project.
     ```csharp
     using DevExpress.ExpressApp.Security;
     using DevExpress.Xpo;
@@ -136,16 +136,20 @@ The static `XpoHelper` class exposes the following members:
     Tracing.UseConfigurationManager = false;
     Tracing.Initialize(3);
     ```
-4. To use a self-signed SSL certificate for development, add the following methiod and call it in the static constructor.
+4. To use a self-signed SSL certificate for development, add the following method and call it in the static constructor.
     ```csharp
     using DevExpress.Xpo.DB;
     using System;
     using DevExpress.Xpo.DB.Helpers;
     using System.Net.Http;
     // ...
+    static XpoHelper() {
+        //..
     #if DEBUG
-    ConfigureXpoForDevEnvironment();
+        ConfigureXpoForDevEnvironment();
     #endif
+        //..
+    }
     // ...
     static void ConfigureXpoForDevEnvironment() {
         XpoDefault.RegisterBonusProviders();
@@ -170,7 +174,7 @@ The static `XpoHelper` class exposes the following members:
         handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
         return handler;
     }
-5. Add the `GetObjectSpaceProvider`, `Logon`, and `Logoff` methods.
+5. Add the `GetObjectSpaceProvider`, `Logon`, and `Logoff` methods. Refer to the following article for information on how to specify a proper connection string: [Transfer Data via REST API](https://docs.devexpress.com/XPO/402182/connect-to-a-data-store/transfer-data-via-rest-api#connect-a-xamarin-app)
     ```csharp
     using DevExpress.ExpressApp.Security.ClientServer;
     // ...
@@ -352,7 +356,7 @@ Make every other ViewModel, except `LogIn`, inherit `XpoViewModel` instead of `B
         <ShellContent Title="Browse" Icon="icon_feed.png" Route="ItemsPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
         ```
 
-## Step 6. Items Page and ViewModel ImplemeNtation
+## Step 6. Items Page and ViewModel implementation
 
 Change the _ViewModels\ItemsViewModel.cs_ and _ViewModels\ItemsPage.xaml_ files to implement a ListView with the list of items, a filter bar, and Toolbar items.
 
@@ -687,23 +691,20 @@ Change the _ViewModels\ItemDetailViewModel.cs_ and _ViewModels\ItemDetailPage.xa
 
 ## Step 8. Populate the Data Base
 
-To seed the data in the database, add the `UpdateDataBase` method and call this method from the `InitXpo` method: 
+To seed the data in the database, add the `UpdateDataBase` method and call this method from the `XpoHelper` static constructor: 
 
 ```csharp
-public static void InitXpo(string connectionString, string login, string password) {
+static XpoHelper() {
     //..
     UpdateDataBase();
-    LogIn(login, password);
     //..
 }
 static void UpdateDataBase() {
-    var space = ObjectSpaceProvider.CreateUpdatingObjectSpace(true);
-    Updater updater = new Updater(space);
-    updater.UpdateDatabase();
+    var space = GetObjectSpaceProvider().CreateUpdatingObjectSpace(true);
+    XafSolution.Module.DatabaseUpdate.Updater updater = new XafSolution.Module.DatabaseUpdate.Updater(space, null);
+    updater.UpdateDatabaseAfterUpdateSchema();
 }
 ```
-
-Add these files into the `Core` folder: [Employees.xml](XamarinFormsDemo/Core/Employees.xml) , [DBUpdater.cs](XamarinFormsDemo/Core/DBUpdater.cs).
 
 ## Step 9. Run and Test the App
 
