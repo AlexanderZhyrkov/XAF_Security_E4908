@@ -5,6 +5,12 @@
 
 trigger:
 - 19.2.6+
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'config'
+    nugetConfigPath: 'NuGet.config'
 
 pool:
   vmImage: 'windows-latest'
